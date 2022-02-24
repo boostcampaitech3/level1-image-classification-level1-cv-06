@@ -1,0 +1,1 @@
+python train.py --model "MyModel8" --epochs 10 --batch_size 64 --val_ratio 0.2 --name exp18 >> log18.txt
