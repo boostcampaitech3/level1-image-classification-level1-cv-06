@@ -284,4 +284,4 @@ if __name__ == '__main__':
     # How much epochs to train now
     train_epochs = 200
 
-    train_and_eval(done_epochs, train_epochs, clear_log=True)
+    train_and_eval(done_epochs, train_epochs, clear_log=False)
