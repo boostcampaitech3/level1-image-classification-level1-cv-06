@@ -11,7 +11,6 @@ from torch.utils.data import DataLoader
 
 import os
 import shutil
-import math
 import time
 import pickle
 import multiprocessing
@@ -44,14 +43,14 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
         clear_log_folders()
 
     ######## Preparing Dataset ########
-    print(f"Dataset | Data preparation start @ {get_time()}")
+    print(f"Dataset | Data preparation start @ {get_time()}", flush=True)
 
     timestamp = get_time().replace(':', '')
     location = {
         'base_path': './dataset_fixed',
-        'checkpoints_path': './checkpoints/' + timestamp,
-        'history_path': './history/' + timestamp,
-        'results_path': './results/' + timestamp
+        'checkpoints_path': os.path.join('./checkpoints', timestamp),
+        'history_path': os.path.join('./history', timestamp),
+        'results_path': os.path.join('./results', timestamp)
     }
     os.makedirs(location['checkpoints_path'])
     os.makedirs(location['history_path'])
@@ -119,10 +118,10 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     ######## Loading Model ########
     if done_epochs > 0:
-        checkpoint = torch.load(f'./checkpoints/epoch{done_epochs}.pt', map_location=device)
+        checkpoint = torch.load(f"./checkpoints/epoch{done_epochs}.pt", map_location=device)
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
-        with open(f'./history/epoch{done_epochs}.pickle', 'rb') as fr:
+        with open(f"./history/epoch{done_epochs}.pickle", 'rb') as fr:
             history = pickle.load(fr)
     else:
         history = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []}
