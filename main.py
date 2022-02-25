@@ -173,7 +173,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
         # Save checkpoint
         checkpoint = {'model': model.state_dict(), 'optimizer': optimizer.state_dict()}
-        torch.save(checkpoint, os.path.join(location['checkpoints_path'], f'epoch{epoch + 1}.pt'))
+        torch.save(checkpoint, os.path.join(location['checkpoints_path'], f"epoch{epoch + 1}.pt"))
 
         ######## Validation ########
         print('Validation | Epoch {:02d} start @ {}'.format(epoch + 1, get_time()), flush=True)
@@ -215,7 +215,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
                 best_epoch = epoch + 1
 
         ######## Saving History ########
-        with open(os.path.join(location['history_path'], f'epoch{epoch + 1}.pickle'), 'wb') as fw:
+        with open(os.path.join(location['history_path'], f"epoch{epoch + 1}.pickle"), 'wb') as fw:
             pickle.dump(history, fw)
 
     print(f"Train & Validation | Finished training @ {get_time()}", flush=True)
@@ -229,7 +229,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     # Load best model selected by validation loss
     print(f"Prediction | Loading epoch {best_epoch} model (epoch with best validation loss)")
     if best_epoch != epoch + 1:
-        checkpoint = torch.load(os.path.join(location['checkpoints_path'], f'epoch{best_epoch}.pt'), map_location=device)
+        checkpoint = torch.load(os.path.join(location['checkpoints_path'], f"epoch{best_epoch}.pt"), map_location=device)
         model.load_state_dict(checkpoint['model'])
 
     model.eval()
