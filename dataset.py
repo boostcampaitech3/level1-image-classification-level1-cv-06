@@ -8,9 +8,11 @@ import random
 from enum import Enum
 from typing import Tuple, List, Dict
 
+import numpy as np
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset, Subset
+import torchvision.transforms as transforms
 
 
 class MaskLabels(int, Enum):
@@ -65,21 +67,26 @@ class AgeLabels(int, Enum):
 
 
 class ProfileClassEqualSplitTrainMaskDataset(Dataset):
-    def __init__(self, root: str = '/', transform = None, val_ratio: float = 0.2, classes: int = 18) -> None:
+    def __init__(self, data_dir: str = '/',
+                 mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246),
+                 transform = None, val_ratio: float = 0.2, classes: int = 18) -> None:
         super().__init__()
 
         self.image_paths = []
         self.image_labels = []
+        self.mean = mean
+        self.std = std
         self.transform = transform
         self.indices = {
             'train': [],
             'val': []
         }
 
-        self.setup(os.path.join(root, 'train/images'), val_ratio, classes)
+        self.setup(os.path.join(data_dir, 'train/images'), val_ratio, classes)
+        self.calc_statistics()
 
     @staticmethod
-    def split_profile(label: int, profiles_len: int, val_ratio: float) -> Dict:
+    def split_profile(profiles_len: int, val_ratio: float) -> Dict:
         assert profiles_len % 5 == 0, ValueError(f"Each profile should have five mask wearing images")
         profiles_len = profiles_len // 5
 
@@ -118,7 +125,7 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
             label_len_sum.append(label_len_sum[label - 1] + len(self.image_paths[label - 1]))
 
         for label in range(classes // 3):
-            split_profiles = self.split_profile(label, len(self.image_paths[label]), val_ratio)
+            split_profiles = self.split_profile(len(self.image_paths[label]), val_ratio)
             for phase, profile_indices in split_profiles.items():
                 for profile_index in profile_indices:
                     for i in range(5):
@@ -130,6 +137,25 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
             self.image_labels.extend([label] * len(self.image_paths[label]))
 
         self.image_paths = [path for path_label in self.image_paths for path in path_label] # Flatten
+
+    # For baseline compatibility
+    def calc_statistics(self):
+        has_statistics = self.mean is not None and self.std is not None
+        if not has_statistics:
+            print("[Warning] Calculating statistics... It can take a long time depending on your CPU machine")
+            sums = []
+            squared = []
+            for image_path in self.image_paths[:3000]:
+                image = np.array(Image.open(image_path)).astype(np.int32)
+                sums.append(image.mean(axis=(0, 1)))
+                squared.append((image ** 2).mean(axis=(0, 1)))
+
+            self.mean = np.mean(sums, axis=0) / 255
+            self.std = (np.mean(squared, axis=0) - self.mean ** 2) ** 0.5 / 255
+
+    # For baseline compatibility
+    def set_transform(self, transform) -> None:
+        self.transform = transform
 
     def __getitem__(self, index: int) -> Tuple[Image.Image, int]:
         image = self.read_image(index)
@@ -153,6 +179,24 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
     def encode_multi_class(mask_label: int, gender_label: int, age_label: int) -> int:
         return mask_label * 6 + gender_label * 3 + age_label
 
+    # For baseline compatibility
+    @staticmethod
+    def decode_multi_class(multi_class_label) -> Tuple[MaskLabels, GenderLabels, AgeLabels]:
+        mask_label = (multi_class_label // 6) % 3
+        gender_label = (multi_class_label // 3) % 2
+        age_label = multi_class_label % 3
+        return mask_label, gender_label, age_label
+
+    # For baseline compatibility
+    @staticmethod
+    def denormalize_image(image, mean, std):
+        img_cp = image.copy()
+        img_cp *= std
+        img_cp += mean
+        img_cp *= 255.0
+        img_cp = np.clip(img_cp, 0, 255).astype(np.uint8)
+        return img_cp
+
     def split_dataset(self) -> List[Subset]:
         return [Subset(self, indices) for _, indices in self.indices.items()]
 
@@ -163,6 +207,10 @@ class EvalMaskDataset(Dataset):
 
         img_list = pd.read_csv(os.path.join(root, 'eval/info.csv'))
         self.image_paths = [os.path.join(root, 'eval/images', img_id) for img_id in img_list.ImageID]
+        self.transform = transform
+
+    # For baseline compatibility
+    def set_transform(self, transform) -> None:
         self.transform = transform
 
     def __getitem__(self, index: int) -> Image.Image:
@@ -178,3 +226,29 @@ class EvalMaskDataset(Dataset):
 
     def read_image(self, index: int) -> Image.Image:
         return Image.open(self.image_paths[index])
+
+class TestDataset(Dataset):
+    '''
+    For baseline compatibility
+    '''
+    def __init__(self, img_paths, resize, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246)) -> None:
+        self.img_paths = img_paths
+        self.transform = transforms.Compose([
+            transforms.Resize(resize, Image.BILINEAR),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=mean, std=std),
+        ])
+
+    def __getitem__(self, index: int) -> Image.Image:
+        image = self.read_image(index)
+
+        if self.transform:
+            return self.transform(image)
+        else:
+            return image
+
+    def __len__(self) -> int:
+        return len(self.img_paths)
+
+    def read_image(self, index: int) -> Image.Image:
+        return Image.open(self.img_paths[index])

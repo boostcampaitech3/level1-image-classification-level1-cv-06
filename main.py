@@ -111,9 +111,9 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     ######## Model & Hyperparameters ########
     model = MultiHeadClassifier().to(device)
 
-    learning_rate = 0.0001
+    learning_rate = 0.001
     criterion = F1Loss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.0001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
 
     plot_bound = 0
 
