@@ -202,11 +202,11 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
 
 
 class EvalMaskDataset(Dataset):
-    def __init__(self, root: str = '/', transform = None) -> None:
+    def __init__(self, data_dir: str = '/', transform = None) -> None:
         super().__init__()
 
-        img_list = pd.read_csv(os.path.join(root, 'eval/info.csv'))
-        self.image_paths = [os.path.join(root, 'eval/images', img_id) for img_id in img_list.ImageID]
+        img_list = pd.read_csv(os.path.join(data_dir, 'eval/info.csv'))
+        self.image_paths = [os.path.join(data_dir, 'eval/images', img_id) for img_id in img_list.ImageID]
         self.transform = transform
 
     # For baseline compatibility

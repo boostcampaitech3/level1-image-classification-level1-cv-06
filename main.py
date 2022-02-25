@@ -67,11 +67,11 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     ])
 
     dataset_train_val = ProfileClassEqualSplitTrainMaskDataset(
-        root=location['base_path'],
+        data_dir=location['base_path'],
         transform=transform_train
     )
     dataset_test = EvalMaskDataset(
-        root=location['base_path'],
+        data_dir=location['base_path'],
         transform=transform_test
     )
 
