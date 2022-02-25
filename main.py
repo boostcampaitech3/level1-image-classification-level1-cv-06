@@ -111,7 +111,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     model = MultiHeadClassifier().to(device)
 
     learning_rate = 0.001
-    criterion = F1Loss()
+    criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
 
     plot_bound = 0
@@ -281,6 +281,6 @@ if __name__ == '__main__':
     done_epochs = 0
 
     # How much epochs to train now
-    train_epochs = 200
+    train_epochs = 100
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)
