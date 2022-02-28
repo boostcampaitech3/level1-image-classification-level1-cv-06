@@ -13,6 +13,7 @@ import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset, Subset
 import torchvision.transforms as transforms
+from torchvision.transforms import *
 
 
 class MaskLabels(int, Enum):
@@ -67,10 +68,14 @@ class AgeLabels(int, Enum):
 
 
 class ProfileClassEqualSplitTrainMaskDataset(Dataset):
-    def __init__(self, data_dir: str = '/',
+    num_classes = 3*2*3
+    def __init__(self, data_dir,
                  mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246),
-                 transform = None, val_ratio: float = 0.2, classes: int = 18) -> None:
+                 transform = None, val_ratio: float = 0.2, num_classes: int = 18) -> None:
         super().__init__()
+        self.data_dir = data_dir
+        #self.num_classes = num_classes
+        #num_classes = 18
 
         self.image_paths = []
         self.image_labels = []
@@ -82,7 +87,7 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
             'val': []
         }
 
-        self.setup(os.path.join(data_dir, 'train/images'), val_ratio, classes)
+        self.setup(val_ratio, num_classes)
         self.calc_statistics()
 
     @staticmethod
@@ -100,31 +105,31 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
             'val': val_indices
         }
 
-    def setup(self, root: str, val_ratio: float, classes: int) -> None:
-        for _ in range(classes):
+    def setup(self, val_ratio: float, num_classes: int) -> None:
+        for _ in range(num_classes):
             self.image_paths.append([])
 
-        profiles = os.listdir(root)
+        profiles = os.listdir(self.data_dir)
         for profile in profiles:
             _, gender, _, age = profile.split('_')
             gender_label = GenderLabels.from_str(gender)
             age_label = AgeLabels.from_number(age)
 
-            img_folder = os.path.join(root, profile)
+            img_folder = os.path.join(self.data_dir, profile)
             for file_name_ext in os.listdir(img_folder):
                 file_name, _ = os.path.splitext(file_name_ext)
                 mask_label = MaskLabels.from_str(file_name)
                 label = self.encode_multi_class(mask_label, gender_label, age_label)
 
-                img_path = os.path.join(root, profile, file_name_ext)
+                img_path = os.path.join(self.data_dir, profile, file_name_ext)
                 self.image_paths[label].append(img_path)
 
         # Number of image paths of images with class label [None, 0, 0 ~ 1, 0 ~ 2, ..., 0 ~ 16]
         label_len_sum = [0]
-        for label in range(1, classes):
+        for label in range(1, num_classes):
             label_len_sum.append(label_len_sum[label - 1] + len(self.image_paths[label - 1]))
 
-        for label in range(classes // 3):
+        for label in range(num_classes // 3):
             split_profiles = self.split_profile(len(self.image_paths[label]), val_ratio)
             for phase, profile_indices in split_profiles.items():
                 for profile_index in profile_indices:
@@ -133,7 +138,7 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
                     self.indices[phase].append(label_len_sum[label + 6] + profile_index) # Label 6 ~ 11
                     self.indices[phase].append(label_len_sum[label + 12] + profile_index) # Label 12 ~ 17
 
-        for label in range(classes):
+        for label in range(num_classes):
             self.image_labels.extend([label] * len(self.image_paths[label]))
 
         self.image_paths = [path for path_label in self.image_paths for path in path_label] # Flatten
@@ -252,3 +257,47 @@ class TestDataset(Dataset):
 
     def read_image(self, index: int) -> Image.Image:
         return Image.open(self.img_paths[index])
+    
+    
+class BaseAugmentation:
+    def __init__(self, resize, mean, std, **args):
+        self.transform = transforms.Compose([
+            Resize(resize, Image.BILINEAR),
+            ToTensor(),
+            Normalize(mean=mean, std=std),
+        ])
+
+    def __call__(self, image):
+        return self.transform(image)
+
+
+class AddGaussianNoise(object):
+    """
+        transform 에 없는 기능들은 이런식으로 __init__, __call__, __repr__ 부분을
+        직접 구현하여 사용할 수 있습니다.
+    """
+
+    def __init__(self, mean=0., std=1.):
+        self.std = std
+        self.mean = mean
+
+    def __call__(self, tensor):
+        return tensor + torch.randn(tensor.size()) * self.std + self.mean
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+
+
+class CustomAugmentation:
+    def __init__(self, resize, mean, std, **args):
+        self.transform = transforms.Compose([
+            CenterCrop((320, 256)),
+            Resize(resize, Image.BILINEAR),
+            ColorJitter(0.1, 0.1, 0.1, 0.1),
+            ToTensor(),
+            Normalize(mean=mean, std=std),
+            #AddGaussianNoise()
+        ])
+
+    def __call__(self, image):
+        return self.transform(image)
