@@ -106,6 +106,9 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
 
         profiles = os.listdir(root)
         for profile in profiles:
+            if profile.startswith('.'):
+                continue
+
             _, gender, _, age = profile.split('_')
             gender_label = GenderLabels.from_str(gender)
             age_label = AgeLabels.from_number(age)
@@ -113,6 +116,9 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
             img_folder = os.path.join(root, profile)
             for file_name_ext in os.listdir(img_folder):
                 file_name, _ = os.path.splitext(file_name_ext)
+                if file_name not in ['incorrect_mask', 'mask1', 'mask2', 'mask3', 'mask4', 'mask5', 'normal']:
+                    continue
+
                 mask_label = MaskLabels.from_str(file_name)
                 label = self.encode_multi_class(mask_label, gender_label, age_label)
 
