@@ -10,26 +10,27 @@ class MultiHeadClassifier(nn.Module):
     def __init__(self) -> None:
         super().__init__()
 
-        self.resnet18 = models.resnet18(pretrained=True)
-        self.resnet18.fc = nn.Identity()
-        for param in self.resnet18.parameters():
-            param.requires_grad = False
+        self.resnet34 = models.resnet34(pretrained=True)
+        self.resnet34.fc = nn.Linear(512, 18, bias=True)
+        torch.nn.init.kaiming_normal_(self.resnet34.fc.weight)
+        torch.nn.init.zeros_(self.resnet34.fc.bias)
 
-        # self.fc_mask = nn.Linear(512, 3, bias=True)
-        # self.fc_gender = nn.Linear(512, 2, bias=True)
-        # self.fc_age = nn.Linear(512, 3, bias=True)
+        self.resnet50 = models.resnet50(pretrained=True)
+        self.resnet50.fc = nn.Linear(2048, 18, bias=True)
+        torch.nn.init.kaiming_normal_(self.resnet50.fc.weight)
+        torch.nn.init.zeros_(self.resnet50.fc.bias)
 
-        # torch.nn.init.kaiming_normal_(self.fc_mask.weight)
-        # torch.nn.init.kaiming_normal_(self.fc_gender.weight)
-        # torch.nn.init.kaiming_normal_(self.fc_age.weight)
-        # torch.nn.init.zeros_(self.fc_mask.bias)
-        # torch.nn.init.zeros_(self.fc_gender.bias)
-        # torch.nn.init.zeros_(self.fc_age.bias)
+        self.resnet101 = models.resnet101(pretrained=True)
+        self.resnet101.fc = nn.Linear(2048, 18, bias=True)
+        torch.nn.init.kaiming_normal_(self.resnet101.fc.weight)
+        torch.nn.init.zeros_(self.resnet101.fc.bias)
 
-        self.fc = nn.Linear(512, 18, bias=True)
-        torch.nn.init.kaiming_normal_(self.fc.weight)
-        torch.nn.init.zeros_(self.fc.bias)
+        self.resnet152 = models.resnet152(pretrained=True)
+        self.resnet152.fc = nn.Linear(2048, 18, bias=True)
+        torch.nn.init.kaiming_normal_(self.resnet152.fc.weight)
+        torch.nn.init.zeros_(self.resnet152.fc.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.resnet18(x)
-        return self.fc(x)
+        # ResNet Only Ensemble Test
+        results = [self.resnet34(x), self.resnet50(x), self.resnet101(x), self.resnet152(x)]
+        return torch.mean(torch.stack(results, dim=0), dim=0)

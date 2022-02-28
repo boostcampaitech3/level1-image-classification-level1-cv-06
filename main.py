@@ -76,7 +76,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     dataset_train, dataset_val = dataset_train_val.split_dataset()
 
-    batch_size = 64
+    batch_size = 16
 
     train_loader = DataLoader(
         dataset=dataset_train,
@@ -281,6 +281,6 @@ if __name__ == '__main__':
     done_epochs = 0
 
     # How much epochs to train now
-    train_epochs = 100
+    train_epochs = 30
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)
