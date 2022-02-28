@@ -18,7 +18,7 @@ import multiprocessing
 import pandas as pd
 
 from loss import F1Loss
-from model import MultiHeadClassifier
+from model import ExperimentalClassifier
 from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
 
 def get_time() -> str:
@@ -76,7 +76,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     dataset_train, dataset_val = dataset_train_val.split_dataset()
 
-    batch_size = 16
+    batch_size = 64
 
     train_loader = DataLoader(
         dataset=dataset_train,
@@ -108,7 +108,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     test_batches = len(test_loader)
 
     ######## Model & Hyperparameters ########
-    model = MultiHeadClassifier().to(device)
+    model = ExperimentalClassifier().to(device)
 
     learning_rate = 0.001
     criterion = nn.CrossEntropyLoss()
@@ -142,6 +142,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
         for batch_index, (images, labels) in enumerate(train_loader):
             print('Train | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, train_batches), flush=True)
+            if batch_index % 10 == 0:
+                print(f"{get_time()}", flush=True)
 
             images = images.to(device)
             labels = labels.to(device)
@@ -304,6 +306,6 @@ if __name__ == '__main__':
     done_epochs = 0
 
     # How much epochs to train now
-    train_epochs = 30
+    train_epochs = 5
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)
