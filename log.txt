@@ -1,0 +1,104 @@
+# Submission Log
+
+[FORMAT]
+Index
+Date/Time
+Loss
+Model
+FC Layer Specifications
+Learning Rate
+Optimizer
+Epochs
+Batch Size
+
+#1
+2022-02-25 10:01
+F1 Loss
+ResNet-18 freeze
+fc 3개 달아서 einsum multiplication ensemble
+lr=0.0001
+Adam weight_decay 0.0001
+total epochs 200
+batch_size 64
+
+#2
+2022-02-25 16:00	
+F1 Loss
+ResNet-18 freeze
+fc 3개 달아서 einsum multiplication ensemble
+lr=0.001
+Adam weight_decay 0.001
+total epochs 200
+batch_size 64
+
+#3
+2022-02-25 18:17
+CrossEntropyLoss
+ResNet-18 freeze
+fc 3개 달아서 einsum multiplication ensemble
+lr=0.001
+Adam weight_decay 0.001
+total epochs 200
+batch_size 64
+
+#4
+2022-02-25 19:19
+CrossEntropyLoss
+ResNet-18 do not freeze
+fc 1개
+lr=0.001
+Adam weight_decay 0.001
+total epochs 100
+batch_size 64
+
+#5
+2022-02-28 12:36
+CrossEntropyLoss
+ResNet-18 do not freeze
+fc 1개
+lr=0.001
+Adam weight_decay 0.001
+epochs 18/30
+batch_size 64
+
+#6
+2022-03-01 00:21
+CrossEntropyLoss
+ResNet-34/50/101/152 all do not freeze
+fc 각각 1개 달아서 mean soft voting ensemble
+lr=0.001
+Adam weight_decay 0.001
+epochs 9/30
+batch_size 16
+
+#7
+2022-03-01 15:57
+CrossEntropyLoss
+EfficientNet_b4 do not freeze
+fc 1개
+lr=0.001
+Adam weight_decay 0.001
+epochs 1/5
+batch_size 64
+
+#8
+2022-03-01 19:10 [same as above]
+epochs 2/5
+
+#9
+2022-03-01 21:11 [same as above]
+epochs 3/5
+
+#10
+2022-03-02 00:05 [same as above]
+epochs 4/5
+
+#11
+2022-03-02 02:22
+CrossEntropyLoss
+EfficientNet_b4 do not freeze
+fc 1개
+lr=[0.0008, 0.0005, 0.0003, 0.0002]
+AdamW weight_decay 0.001
+epochs 1/4
+batch_size 32
