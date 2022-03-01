@@ -115,7 +115,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     ######## Model & Hyperparameters ########
     model = ExperimentalClassifier().to(device)
 
-    learning_rate = [0.0008, 0.0005, 0.0003, 0.0002]
+    learning_rate = [0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate[0], weight_decay=0.001)
 
