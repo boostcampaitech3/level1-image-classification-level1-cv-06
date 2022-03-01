@@ -81,7 +81,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     dataset_train, dataset_val = dataset_train_val.split_dataset()
 
-    batch_size = 64
+    batch_size = 32
 
     train_loader = DataLoader(
         dataset=dataset_train,
@@ -147,7 +147,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
         for batch_index, (images, labels) in enumerate(train_loader):
             print('Train | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, train_batches), flush=True)
-            if batch_index % 5 == 0:
+            if batch_index % 20 == 0:
                 print(f"{get_time()}", flush=True)
 
             images = images.to(device)
@@ -193,7 +193,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
             for batch_index, (images, labels) in enumerate(val_loader):
                 print('Validation | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, val_batches), flush=True)
-                if batch_index % 5 == 0:
+                if batch_index % 20 == 0:
                     print(f"{get_time()}", flush=True)
 
                 images = images.to(device)
@@ -241,7 +241,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
         with torch.no_grad():
             for batch_index, images in enumerate(test_loader):
                 print('Prediction | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, test_batches), flush=True)
-                if batch_index % 5 == 0:
+                if batch_index % 20 == 0:
                     print(f"{get_time()}", flush=True)
 
                 images = images.to(device)
