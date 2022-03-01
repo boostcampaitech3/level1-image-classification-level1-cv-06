@@ -54,7 +54,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     }
     os.makedirs(location['checkpoints_path'])
     os.makedirs(location['history_path'])
-    os.makedirs(location['results_path'])
+    os.makedirs(os.path.join(location['results_path'], 'predictions'))
 
     transform_train = transforms.Compose([
         transforms.ToTensor(),
