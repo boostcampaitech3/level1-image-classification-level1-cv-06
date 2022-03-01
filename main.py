@@ -36,6 +36,11 @@ def clear_log_folders(root: str = './') -> None:
     if os.path.exists(os.path.join(root, 'results')):
         shutil.rmtree(os.path.join(root, 'results'))
 
+# For updating learning rate
+def update_learning_rate(optimizer, lr) -> None:
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
 def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False) -> None:
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -110,9 +115,9 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     ######## Model & Hyperparameters ########
     model = ExperimentalClassifier().to(device)
 
-    learning_rate = 0.001
+    learning_rate = [0.0008, 0.0005, 0.0003, 0.0002]
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate[0], weight_decay=0.001)
 
     plot_bound = 0
 
@@ -142,7 +147,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
         for batch_index, (images, labels) in enumerate(train_loader):
             print('Train | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, train_batches), flush=True)
-            if batch_index % 10 == 0:
+            if batch_index % 5 == 0:
                 print(f"{get_time()}", flush=True)
 
             images = images.to(device)
@@ -188,6 +193,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
             for batch_index, (images, labels) in enumerate(val_loader):
                 print('Validation | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, val_batches), flush=True)
+                if batch_index % 5 == 0:
+                    print(f"{get_time()}", flush=True)
 
                 images = images.to(device)
                 labels = labels.to(device)
@@ -216,6 +223,10 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
                 min_val_loss = val_loss
                 best_epoch = epoch + 1
 
+        # Decay learning rate
+        if epoch < done_epochs + train_epochs - 1:
+            update_learning_rate(optimizer, learning_rate[epoch + 1])
+
         ######## Saving History ########
         with open(os.path.join(location['history_path'], f"epoch{epoch + 1}.pickle"), 'wb') as fw:
             pickle.dump(history, fw)
@@ -230,6 +241,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
         with torch.no_grad():
             for batch_index, images in enumerate(test_loader):
                 print('Prediction | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, test_batches), flush=True)
+                if batch_index % 5 == 0:
+                    print(f"{get_time()}", flush=True)
 
                 images = images.to(device)
                 outputs = model(images)
@@ -261,6 +274,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     with torch.no_grad():
         for batch_index, images in enumerate(test_loader):
             print('Prediction | Final | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
+            if batch_index % 5 == 0:
+                print(f"{get_time()}", flush=True)
 
             images = images.to(device)
             outputs = model(images)
