@@ -258,36 +258,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     print(f"Train & Validation | Finished training @ {get_time()}", flush=True)
 
-    ######## Final Prediction Generation ########
-    print(f"Prediction | Final prediction start @ {get_time()}", flush=True)
-
-    submission = pd.read_csv(os.path.join(location['base_path'], 'eval/info.csv'))
-    predictions = []
-
-    # Load best model selected by validation loss
-    print(f"Prediction | Final | Loading epoch {best_epoch} model (epoch with best validation loss)")
-    if best_epoch != epoch + 1:
-        checkpoint = torch.load(os.path.join(location['checkpoints_path'], f"epoch{best_epoch}.pt"), map_location=device)
-        model.load_state_dict(checkpoint['model'])
-
-    model.eval()
-    with torch.no_grad():
-        for batch_index, images in enumerate(test_loader):
-            print('Prediction | Final | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
-            if batch_index % 5 == 0:
-                print(f"{get_time()}", flush=True)
-
-            images = images.to(device)
-            outputs = model(images)
-
-            prediction = torch.argmax(outputs, dim=1)
-            predictions.extend(prediction.cpu().numpy())
-
-    # Save predictions
-    submission['ans'] = predictions
-    submission.to_csv(os.path.join(location['results_path'], 'submission.csv'), index=False)
-
-    print(f"Prediction | Finished final prediction @ {get_time()}", flush=True)
+    # Final prediction suggestion
+    print(f"Prediction | Final | Use epoch {best_epoch} predictions (epoch with best validation loss)")
 
     ######## Learning Statistics ########
     if train_epochs == 0:
