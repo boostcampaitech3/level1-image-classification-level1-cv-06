@@ -121,3 +121,21 @@ Conflict resolving rules(229/12600)
         proceed hard voting per each subclass(210/12600)
         if no agreement on age subclass label again:
             follow age subclass label of the best model(19/12600)
+
+#14 | 0.6605 | 76.4603%
+2022-03-02 23:55
+CrossEntropyLoss
+EfficientNet_b3 do not freeze
+fc 1개
+lr=[0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
+AdamW weight_decay 0.001
+epochs 1/5
+batch_size 40
+
+#15 | 0.7338 | 77.1587%
+2022-03-02 23:59 [same as above]
+epochs 2/5
+
+#16 | 0.7272 | 78.8889%
+2022-03-03 00:41 [same as above]
+epochs 5/5
