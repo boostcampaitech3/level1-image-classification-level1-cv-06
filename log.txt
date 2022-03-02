@@ -102,3 +102,13 @@ lr=[0.0008, 0.0005, 0.0003, 0.0002]
 AdamW weight_decay 0.001
 epochs 1/4
 batch_size 32
+
+#12
+2022-03-02 17:33
+CrossEntropyLoss
+EfficientNet_b5 do not freeze
+fc 1개
+lr=[0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
+AdamW weight_decay 0.001
+epochs 1/5
+batch_size 24
