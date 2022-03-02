@@ -1,8 +1,8 @@
 # Submission Log
 
 [FORMAT]
-Index
-Date/Time
+Index | F1 score | Test acc
+Date & Time
 Loss
 Model
 FC Layer Specifications
@@ -11,7 +11,7 @@ Optimizer
 Epochs
 Batch Size
 
-#1
+#1 | 0.2158 | 41.3175%
 2022-02-25 10:01
 F1 Loss
 ResNet-18 freeze
@@ -21,7 +21,7 @@ Adam weight_decay 0.0001
 total epochs 200
 batch_size 64
 
-#2
+#2 | 0.2932 | 49.1429%
 2022-02-25 16:00	
 F1 Loss
 ResNet-18 freeze
@@ -31,7 +31,7 @@ Adam weight_decay 0.001
 total epochs 200
 batch_size 64
 
-#3
+#3 | 0.5407 | 62.5079%
 2022-02-25 18:17
 CrossEntropyLoss
 ResNet-18 freeze
@@ -41,7 +41,7 @@ Adam weight_decay 0.001
 total epochs 200
 batch_size 64
 
-#4
+#4 | 0.5495 | 63.6508%
 2022-02-25 19:19
 CrossEntropyLoss
 ResNet-18 do not freeze
@@ -51,7 +51,7 @@ Adam weight_decay 0.001
 total epochs 100
 batch_size 64
 
-#5
+#5 | 0.6821 | 75.6349%
 2022-02-28 12:36
 CrossEntropyLoss
 ResNet-18 do not freeze
@@ -61,7 +61,7 @@ Adam weight_decay 0.001
 epochs 18/30
 batch_size 64
 
-#6
+#6 | 0.5986 | 70.7143%
 2022-03-01 00:21
 CrossEntropyLoss
 ResNet-34/50/101/152 all do not freeze
@@ -71,7 +71,7 @@ Adam weight_decay 0.001
 epochs 9/30
 batch_size 16
 
-#7
+#7 | 0.7287 | 76.2381% [TEAM BEST]
 2022-03-01 15:57
 CrossEntropyLoss
 EfficientNet_b4 do not freeze
@@ -81,19 +81,19 @@ Adam weight_decay 0.001
 epochs 1/5
 batch_size 64
 
-#8
+#8 | 0.6043 | 71.8254%
 2022-03-01 19:10 [same as above]
 epochs 2/5
 
-#9
+#9 | 0.5818 | 71.0000%
 2022-03-01 21:11 [same as above]
 epochs 3/5
 
-#10
+#10 | 0.6157 | 68.6032%
 2022-03-02 00:05 [same as above]
 epochs 4/5
 
-#11
+#11 | 0.6277 | 75.1905%
 2022-03-02 02:22
 CrossEntropyLoss
 EfficientNet_b4 do not freeze
@@ -103,7 +103,7 @@ AdamW weight_decay 0.001
 epochs 1/4
 batch_size 32
 
-#12
+#12 | 0.6263 | 73.7778%
 2022-03-02 17:33
 CrossEntropyLoss
 EfficientNet_b5 do not freeze
@@ -112,3 +112,12 @@ lr=[0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
 AdamW weight_decay 0.001
 epochs 1/5
 batch_size 24
+
+#13 | 0.7204 | 78.9683%
+2022-03-02 21:54
+Hard voting ensemble [#7, #5, #11]
+Conflict resolving rules(229/12600)
+    if no agreement on label:
+        proceed hard voting per each subclass(210/12600)
+        if no agreement on age subclass label again:
+            follow age subclass label of the best model(19/12600)
