@@ -36,6 +36,15 @@ def clear_log_folders(root: str = './') -> None:
     if os.path.exists(os.path.join(root, 'results')):
         shutil.rmtree(os.path.join(root, 'results'))
 
+def seed_everything(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    random.seed(seed)
+
 # For updating learning rate
 def update_learning_rate(optimizer, lr) -> None:
     for param_group in optimizer.param_groups:
@@ -49,6 +58,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     ######## Preparing Dataset ########
     print(f"Dataset | Data preparation start @ {get_time()}", flush=True)
+
+    seed_everything(42)
 
     timestamp = get_time().replace(':', '')
     location = {
