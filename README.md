@@ -1,6 +1,6 @@
-# Mask Image Classification Competition
+# Mask Image Classification Competition Report
 
-> CV_06 같이가조
+> [boostcamp AI Tech](https://boostcamp.connect.or.kr) - Level 1: CV_06 같이가조
 
 ### Results
 
