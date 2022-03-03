@@ -1,39 +1,45 @@
 #
-# MultiHeadClassifier
+# boostcamp AI Tech
+# Mask Image Classification Competition
 #
+
 
 import torch
 import torch.nn as nn
 import torchvision.models as models
 
-class MultiHeadClassifier(nn.Module):
+
+class EfficientNet_b3(nn.Module):
     def __init__(self) -> None:
         super().__init__()
 
-        self.resnet18 = models.resnet18(pretrained=True)
-        self.resnet18.fc = nn.Identity()
-        for param in self.resnet18.parameters():
-            param.requires_grad = False
+        self.fc = nn.Linear(1536, 18, bias=True)
+        torch.nn.init.kaiming_normal_(self.fc.weight)
+        torch.nn.init.zeros_(self.fc.bias)
 
-        self.fc_mask = nn.Linear(512, 3, bias=True)
-        self.fc_gender = nn.Linear(512, 2, bias=True)
-        self.fc_age = nn.Linear(512, 3, bias=True)
-
-        torch.nn.init.kaiming_normal_(self.fc_mask.weight)
-        torch.nn.init.kaiming_normal_(self.fc_gender.weight)
-        torch.nn.init.kaiming_normal_(self.fc_age.weight)
-        torch.nn.init.zeros_(self.fc_mask.bias)
-        torch.nn.init.zeros_(self.fc_gender.bias)
-        torch.nn.init.zeros_(self.fc_age.bias)
+        self.effnetb3 = models.efficientnet_b3(pretrained=True)
+        self.effnetb3.classifier = nn.Sequential(
+            nn.Dropout(p=0.3, inplace=True),
+            self.fc
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.resnet18(x)
+        return self.effnetb3(x)
 
-        mask = self.fc_mask(x)
-        gender = self.fc_gender(x)
-        age = self.fc_age(x)
 
-        mask_gender = torch.einsum("ij,ik->ijk", (mask, gender)).reshape(mask.shape[0], -1)
-        mask_gender_age = torch.einsum("ij,ik->ijk", (mask_gender, age)).reshape(mask_gender.shape[0], -1)
+class EfficientNet_b4(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
 
-        return mask_gender_age
+        self.fc = nn.Linear(1792, 18, bias=True)
+        torch.nn.init.kaiming_normal_(self.fc.weight)
+        torch.nn.init.zeros_(self.fc.bias)
+
+        self.effnetb4 = models.efficientnet_b4(pretrained=True)
+        self.effnetb4.classifier = nn.Sequential(
+            nn.Dropout(p=0.4, inplace=True),
+            self.fc
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.effnetb4(x)

@@ -1,7 +1,8 @@
 #
 # boostcamp AI Tech
-# Image Classification Competition
+# Mask Image Classification Competition
 #
+
 
 import torch
 import torch.nn as nn
@@ -11,7 +12,6 @@ from torch.utils.data import DataLoader
 
 import os
 import shutil
-import math
 import time
 import random
 import pickle
@@ -20,9 +20,9 @@ import multiprocessing
 import numpy as np
 import pandas as pd
 
-from loss import F1Loss
-from model import MultiHeadClassifier
+from model import EfficientNet_b3, EfficientNet_b4
 from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
+
 
 def get_time() -> str:
     return time.strftime('%c', time.localtime(time.time()))
@@ -48,6 +48,11 @@ def seed_everything(seed):
     np.random.seed(seed)
     random.seed(seed)
 
+# For updating learning rate
+def update_learning_rate(optimizer, lr) -> None:
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
 def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False) -> None:
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -55,20 +60,20 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
         clear_log_folders()
 
     ######## Preparing Dataset ########
-    print(f"Dataset | Data preparation start @ {get_time()}")
+    print(f"Dataset | Data preparation start @ {get_time()}", flush=True)
 
     seed_everything(42)
 
     timestamp = get_time().replace(':', '')
     location = {
         'base_path': './dataset_fixed',
-        'checkpoints_path': './checkpoints/' + timestamp,
-        'history_path': './history/' + timestamp,
-        'results_path': './results/' + timestamp
+        'checkpoints_path': os.path.join('./checkpoints', timestamp),
+        'history_path': os.path.join('./history', timestamp),
+        'results_path': os.path.join('./results', timestamp)
     }
     os.makedirs(location['checkpoints_path'])
     os.makedirs(location['history_path'])
-    os.makedirs(location['results_path'])
+    os.makedirs(os.path.join(location['results_path'], 'predictions'))
 
     transform_train = transforms.Compose([
         transforms.ToTensor(),
@@ -90,7 +95,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     dataset_train, dataset_val = dataset_train_val.split_dataset()
 
-    batch_size = 64
+    batch_size = 40
+    # batch_size = 32
 
     train_loader = DataLoader(
         dataset=dataset_train,
@@ -122,20 +128,22 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     test_batches = len(test_loader)
 
     ######## Model & Hyperparameters ########
-    model = MultiHeadClassifier().to(device)
+    model = EfficientNet_b3().to(device)
+    # model = EfficientNet_b4().to(device)
 
-    learning_rate = 0.001
-    criterion = F1Loss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
+    learning_rate = [0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
+    # learning_rate = [0.0008, 0.0005, 0.0003, 0.0002]
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate[0], weight_decay=0.001)
 
     plot_bound = 0
 
     ######## Loading Model ########
     if done_epochs > 0:
-        checkpoint = torch.load(f'./checkpoints/epoch{done_epochs}.pt', map_location=device)
+        checkpoint = torch.load(f"./checkpoints/epoch{done_epochs}.pt", map_location=device)
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
-        with open(f'./history/epoch{done_epochs}.pickle', 'rb') as fr:
+        with open(f"./history/epoch{done_epochs}.pickle", 'rb') as fr:
             history = pickle.load(fr)
     else:
         history = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []}
@@ -156,6 +164,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
         for batch_index, (images, labels) in enumerate(train_loader):
             print('Train | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, train_batches), flush=True)
+            if batch_index % 50 == 0:
+                print(f"{get_time()}", flush=True)
 
             images = images.to(device)
             labels = labels.to(device)
@@ -187,7 +197,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
         # Save checkpoint
         checkpoint = {'model': model.state_dict(), 'optimizer': optimizer.state_dict()}
-        torch.save(checkpoint, os.path.join(location['checkpoints_path'], f'epoch{epoch + 1}.pt'))
+        torch.save(checkpoint, os.path.join(location['checkpoints_path'], f"epoch{epoch + 1}.pt"))
 
         ######## Validation ########
         print('Validation | Epoch {:02d} start @ {}'.format(epoch + 1, get_time()), flush=True)
@@ -200,6 +210,8 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
             for batch_index, (images, labels) in enumerate(val_loader):
                 print('Validation | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, val_batches), flush=True)
+                if batch_index % 50 == 0:
+                    print(f"{get_time()}", flush=True)
 
                 images = images.to(device)
                 labels = labels.to(device)
@@ -228,40 +240,76 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
                 min_val_loss = val_loss
                 best_epoch = epoch + 1
 
+        # Decay learning rate
+        if epoch < done_epochs + train_epochs - 1:
+            update_learning_rate(optimizer, learning_rate[epoch + 1])
+
         ######## Saving History ########
-        with open(os.path.join(location['history_path'], f'epoch{epoch + 1}.pickle'), 'wb') as fw:
+        with open(os.path.join(location['history_path'], f"epoch{epoch + 1}.pickle"), 'wb') as fw:
             pickle.dump(history, fw)
+
+        ######## Epoch Prediction Generation ########
+        print('Prediction | Epoch {:02d} start @ {}'.format(epoch + 1, get_time()), flush=True)
+
+        submission = pd.read_csv(os.path.join(location['base_path'], 'eval/info.csv'))
+        predictions = []
+
+        model.eval()
+        with torch.no_grad():
+            for batch_index, images in enumerate(test_loader):
+                print('Prediction | Epoch {:02d} | Batch {} / {} start'.format(epoch + 1, batch_index + 1, test_batches), flush=True)
+                if batch_index % 50 == 0:
+                    print(f"{get_time()}", flush=True)
+
+                images = images.to(device)
+                outputs = model(images)
+
+                prediction = torch.argmax(outputs, dim=1)
+                predictions.extend(prediction.cpu().numpy())
+
+        # Save predictions
+        submission['ans'] = predictions
+        submission.to_csv(os.path.join(location['results_path'], 'predictions', f"submission_epoch{epoch + 1}.csv"), index=False)
+
+        print(f"Prediction | Finished epoch prediction @ {get_time()}", flush=True)
 
     print(f"Train & Validation | Finished training @ {get_time()}", flush=True)
 
-    ######## Prediction Generation ########
-    print(f"Prediction | Prediction start @ {get_time()}", flush=True)
+    ######## Final Prediction Generation ########
+    print(f"Prediction | Final prediction start @ {get_time()}", flush=True)
 
-    submission = pd.read_csv(os.path.join(location['base_path'], 'eval/info.csv'))
-    predictions = []
+    if train_epochs == 0:
+        best_epoch = done_epochs
 
-    # Load best model selected by validation loss
-    print(f"Prediction | Loading epoch {best_epoch} model (epoch with best validation loss)")
-    if best_epoch != epoch + 1:
-        checkpoint = torch.load(os.path.join(location['checkpoints_path'], f'epoch{best_epoch}.pt'), map_location=device)
-        model.load_state_dict(checkpoint['model'])
+        submission = pd.read_csv(os.path.join(location['base_path'], 'eval/info.csv'))
+        predictions = []
 
-    model.eval()
-    with torch.no_grad():
-        for batch_index, images in enumerate(test_loader):
-            print('Prediction | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
+        # Load best model selected by validation loss
+        print(f"Prediction | Final | Loading epoch {best_epoch} model(epoch with least validation loss)")
+        if best_epoch != epoch + 1:
+            checkpoint = torch.load(os.path.join(location['checkpoints_path'], f"epoch{best_epoch}.pt"), map_location=device)
+            model.load_state_dict(checkpoint['model'])
 
-            images = images.to(device)
-            outputs = model(images)
+        model.eval()
+        with torch.no_grad():
+            for batch_index, images in enumerate(test_loader):
+                print('Prediction | Final | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
+                if batch_index % 50 == 0:
+                    print(f"{get_time()}", flush=True)
 
-            prediction = torch.argmax(outputs, dim=1)
-            predictions.extend(prediction.cpu().numpy())
+                images = images.to(device)
+                outputs = model(images)
 
-    # Save predictions
-    submission['ans'] = predictions
-    submission.to_csv(os.path.join(location['results_path'], 'submission.csv'), index=False)
+                prediction = torch.argmax(outputs, dim=1)
+                predictions.extend(prediction.cpu().numpy())
 
-    print(f"Prediction | Finished prediction @ {get_time()}", flush=True)
+        # Save predictions
+        submission['ans'] = predictions
+        submission.to_csv(os.path.join(location['results_path'], 'submission.csv'), index=False)
+
+        print(f"Prediction | Final | Finished final prediction @ {get_time()}", flush=True)
+    else:
+        print(f"Prediction | Final | Use epoch {best_epoch} predictions(epoch with least validation loss)")
 
     ######## Learning Statistics ########
     if train_epochs == 0:
@@ -295,6 +343,7 @@ if __name__ == '__main__':
     done_epochs = 0
 
     # How much epochs to train now
-    train_epochs = 200
+    # If zero, then only predictions are made
+    train_epochs = 5
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)
