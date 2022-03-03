@@ -1,7 +1,8 @@
 #
 # boostcamp AI Tech
-# Image Classification Competition
+# Mask Image Classification Competition
 #
+
 
 import torch
 import torch.nn as nn
@@ -19,9 +20,9 @@ import multiprocessing
 import numpy as np
 import pandas as pd
 
-from loss import F1Loss
-from model import ExperimentalClassifier
+from model import EfficientNet_b3, EfficientNet_b4
 from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
+
 
 def get_time() -> str:
     return time.strftime('%c', time.localtime(time.time()))
@@ -95,6 +96,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     dataset_train, dataset_val = dataset_train_val.split_dataset()
 
     batch_size = 40
+    # batch_size = 32
 
     train_loader = DataLoader(
         dataset=dataset_train,
@@ -126,9 +128,11 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     test_batches = len(test_loader)
 
     ######## Model & Hyperparameters ########
-    model = ExperimentalClassifier().to(device)
+    model = EfficientNet_b3().to(device)
+    # model = EfficientNet_b4().to(device)
 
     learning_rate = [0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
+    # learning_rate = [0.0008, 0.0005, 0.0003, 0.0002]
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate[0], weight_decay=0.001)
 
@@ -271,8 +275,41 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     print(f"Train & Validation | Finished training @ {get_time()}", flush=True)
 
-    # Final prediction suggestion
-    print(f"Prediction | Final | Use epoch {best_epoch} predictions (epoch with best validation loss)")
+    ######## Final Prediction Generation ########
+    print(f"Prediction | Final prediction start @ {get_time()}", flush=True)
+
+    if train_epochs == 0:
+        best_epoch = done_epochs
+
+        submission = pd.read_csv(os.path.join(location['base_path'], 'eval/info.csv'))
+        predictions = []
+
+        # Load best model selected by validation loss
+        print(f"Prediction | Final | Loading epoch {best_epoch} model(epoch with least validation loss)")
+        if best_epoch != epoch + 1:
+            checkpoint = torch.load(os.path.join(location['checkpoints_path'], f"epoch{best_epoch}.pt"), map_location=device)
+            model.load_state_dict(checkpoint['model'])
+
+        model.eval()
+        with torch.no_grad():
+            for batch_index, images in enumerate(test_loader):
+                print('Prediction | Final | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
+                if batch_index % 50 == 0:
+                    print(f"{get_time()}", flush=True)
+
+                images = images.to(device)
+                outputs = model(images)
+
+                prediction = torch.argmax(outputs, dim=1)
+                predictions.extend(prediction.cpu().numpy())
+
+        # Save predictions
+        submission['ans'] = predictions
+        submission.to_csv(os.path.join(location['results_path'], 'submission.csv'), index=False)
+
+        print(f"Prediction | Final | Finished final prediction @ {get_time()}", flush=True)
+    else:
+        print(f"Prediction | Final | Use epoch {best_epoch} predictions(epoch with least validation loss)")
 
     ######## Learning Statistics ########
     if train_epochs == 0:
@@ -306,6 +343,7 @@ if __name__ == '__main__':
     done_epochs = 0
 
     # How much epochs to train now
+    # If zero, then only predictions are made
     train_epochs = 5
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)
