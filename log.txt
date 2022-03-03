@@ -154,7 +154,7 @@ epochs 4/5
 #18 [duplicate of #15]
 2022-03-03 17:26
 
-#19 | 0.7525 | 79.5714% [TEAM BEST]
+#19 | 0.7525 | 79.5714% [Best]
 2022-03-03 18:47
 Hard voting ensemble [#15, #7, #16]
 EfficientNet_b3 2/5 & EfficientNet_b4 1/5 & EfficientNet_b3 5/5
