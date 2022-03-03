@@ -1,6 +1,6 @@
 #
 # boostcamp AI Tech
-# Educational Mask Dataset
+# Educational Mask Image Dataset
 #
 
 import os
