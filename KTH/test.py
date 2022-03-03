@@ -19,7 +19,7 @@ import multiprocessing
 import pandas as pd
 
 from loss import F1Loss
-from model import MultiHeadClassifier, ResNet_Ensemble
+from model import MultiHeadClassifier, ResNet_Ensemble, ResNet_Ensemble2, ResNet_Ensemble_debugged
 from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
 import numpy as np
 def get_time() -> str:
@@ -77,7 +77,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     dataset_train, dataset_val = dataset_train_val.split_dataset()
 
-    batch_size = 1
+    batch_size = 120
 
     train_loader = DataLoader(
         dataset=dataset_train,
@@ -110,7 +110,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     ######## Model & Hyperparameters ########
     #model = MultiHeadClassifier().to(device)
-    model = ResNet_Ensemble().to(device)
+    model = ResNet_Ensemble_debugged().to(device)
     learning_rate = 0.001
     criterion = F1Loss()
     criterion1 = nn.CrossEntropyLoss()
@@ -133,30 +133,20 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     #if best_epoch != epoch + 1:
     #    checkpoint = torch.load(os.path.join(location['checkpoints_path'], f'epoch{best_epoch}.pt'), map_location=device)
     #    model.load_state_dict(checkpoint['model'])
-    checkpoint = torch.load('./epoch4.pt', map_location=device)
+    checkpoint = torch.load('./epoch14.pt', map_location=device)
     model.eval()
     with torch.no_grad():
         for batch_index, images in enumerate(test_loader):
             print('Prediction | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
 
             images = images.to(device)
-            output1, output2, output3, output4, output5, outputs = model(images)
-            print(output1)
-            output1 = nn.functional.one_hot(torch.argmax(output1,dim=1)[0],18).cpu().numpy()*0.3*1
-            output2 = nn.functional.one_hot(torch.argmax(output2,dim=1)[0],18).cpu().numpy()*0.3*0.8
-            output3 = nn.functional.one_hot(torch.argmax(output3,dim=1)[0],18).cpu().numpy()*0.3*0.6
-            output4 = nn.functional.one_hot(torch.argmax(output4,dim=1)[0],18).cpu().numpy()*0.3*0.4
-            output5 = nn.functional.one_hot(torch.argmax(output5,dim=1)[0],18).cpu().numpy()*0.3*0.2
-            outputs = nn.functional.one_hot(torch.argmax(outputs,dim=1)[0],18).cpu().numpy()*0.1
-            output = output1+output2+output3+output4+output5+outputs
-            #print(output)
-            #print(np.argmax(output))
-            #print(torch.argmax(torch.Tensor(output)))
-            prediction = torch.argmax(torch.Tensor(output))
-            predictions.append(prediction.cpu().numpy())
-            #print(torch.argmax(output1,dim=1)[0],torch.argmax(output2,dim=1),torch.argmax(output3,dim=1),torch.argmax(output4,dim=1),torch.argmax(output5,dim=1),torch.argmax(outputs,dim=1))
+            #ResNet_Ensemble1,2 : output1, output2, output3, output4, output5, outputs = model(images)
+            _, _, _, _, _, _, outputs = model(images) #ResNet_Ensemble_debugged
+            #ResNet_Ensemble1,2 : output = output1+output2+output3+output4+output5+outputs
+            prediction = torch.argmax(outputs, dim=1)
+            predictions.extend(prediction.cpu().numpy())
+            
             #prediction = torch.argmax(outputs, dim=1)
-            #print(prediction)
             #predictions.extend(prediction.cpu().numpy())
 
     # Save predictions

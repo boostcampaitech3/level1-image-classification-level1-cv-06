@@ -8,7 +8,8 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-
+import random
+import numpy as np
 import os
 import shutil
 import math
@@ -19,9 +20,17 @@ import multiprocessing
 import pandas as pd
 
 from loss import F1Loss
-from model import MultiHeadClassifier, ResNet_Ensemble, ResNet_Ensemble2
+from model import MultiHeadClassifier, ResNet_Ensemble, ResNet_Ensemble2, ResNet_Ensemble_debugged
 from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
 
+def seed_everything(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if use multi-GPU
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    random.seed(seed)
 def get_time() -> str:
     return time.strftime('%c', time.localtime(time.time()))
 
@@ -38,6 +47,7 @@ def clear_log_folders(root: str = './') -> None:
         shutil.rmtree(os.path.join(root, 'results'))
 
 def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False) -> None:
+    seed_everything(42)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if clear_log:
@@ -110,7 +120,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     ######## Model & Hyperparameters ########
     #model = MultiHeadClassifier().to(device)
-    model = ResNet_Ensemble2().to(device)
+    model = ResNet_Ensemble_debugged().to(device)
     learning_rate = 0.001
     criterion = F1Loss()
     criterion1 = nn.CrossEntropyLoss()
@@ -155,15 +165,15 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
             # Forward pass
             #outputs = model(images)
             #loss = criterion(outputs, labels)
-            output1, output2, output3, output4, output5, outputs = model(images)
+            output1, output2, output3, output4, output5, output6, outputs = model(images)
             loss1 = criterion1(output1,labels)
             loss2 = criterion2(output2,labels)
             loss3 = criterion3(output3,labels)
-            loss4 = criterion4(output4,labels)
+            loss4 = criterion4(output4,labels) #f1 loss로 다 바꿔보기.
             loss5 = criterion5(output5,labels)
-            losses = criterion(outputs, labels)
-            outputs = output1 + output2 + output3 + output4 + output5 + outputs
-            loss = loss1 + loss2 + loss3 + loss4 + loss5 + losses
+            loss6 = criterion(output6,labels)
+            #ResNet_Ensemble1,2 : outputs = output1 + output2 + output3 + output4 + output5 + outputs
+            loss = loss1 + loss2 + loss3 + loss4 + loss5 + loss6
             #loss = torch.mul(loss1,0.3*1) + torch.mul(loss2,0.3*0.8) + torch.mul(loss3,0.3*0.6) + torch.mul(loss4,0.3*0.4) + torch.mul(loss5,0.3*0.2) + torch.mul(loss1,0.1)
             #outputs = torch.mul(output1,0.3*1) + torch.mul(output2,0.3*0.8) + torch.mul(output3,0.3*0.6) + torch.mul(output4,0.3*0.4) + torch.mul(output5,0.3*0.2) + torch.mul(outputs,0.1)
             # Backward pass and optimization
@@ -207,21 +217,15 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
                 labels = labels.to(device)
 
                 # Forward pass
-                output1, output2, output3, output4, output5, outputs = model(images)
+                output1, output2, output3, output4, output5, output6, outputs = model(images)
                 loss1 = criterion1(output1,labels)
                 loss2 = criterion2(output2,labels)
                 loss3 = criterion3(output3,labels)
                 loss4 = criterion4(output4,labels)
                 loss5 = criterion5(output5,labels)
-                losses = criterion(outputs, labels)
-                loss = loss1 + loss2 + loss3 + loss4 + loss5 + losses
-                #output1 = nn.functional.one_hot(torch.argmax(output1,dim=1)[0],18).cpu().numpy()*0.9*1
-                #output2 = nn.functional.one_hot(torch.argmax(output2,dim=1)[0],18).cpu().numpy()*0.9*0.8
-                #output3 = nn.functional.one_hot(torch.argmax(output3,dim=1)[0],18).cpu().numpy()*0.9*0.6
-                #output4 = nn.functional.one_hot(torch.argmax(output4,dim=1)[0],18).cpu().numpy()*0.9*0.4
-                #output5 = nn.functional.one_hot(torch.argmax(output5,dim=1)[0],18).cpu().numpy()*0.9*0.2
-                #outputs = nn.functional.one_hot(torch.argmax(outputs,dim=1)[0],18).cpu().numpy()*0.1
-                outputs = output1+output2+output3+output4+output5+outputs
+                loss6 = criterion(output6,labels)
+                loss = loss1 + loss2 + loss3 + loss4 + loss5 + loss6
+                #ResNet_Ensemble1,2 : outputs = output1+output2+output3+output4+output5+outputs
                 
                 # Validation loss
                 val_loss += loss.item()
@@ -267,8 +271,9 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
             print('Prediction | Batch {} / {} start'.format(batch_index + 1, test_batches), flush=True)
 
             images = images.to(device)
-            output1, output2, output3, output4, output5, outputs = model(images)
-            outputs = output1+output2+output3+output4+output5+outputs
+            _, _, _, _, _, _, outputs = model(images) #ResNet_Ensemble_debugged
+            #output1, output2, output3, output4, output5, outputs = model(images)
+            #ResNet_Ensemble1,2 : outputs = output1+output2+output3+output4+output5+outputs
 
             prediction = torch.argmax(outputs, dim=1)
             predictions.extend(prediction.cpu().numpy())

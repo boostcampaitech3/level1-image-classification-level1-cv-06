@@ -1,1 +1,8 @@
-python train.py --model "MyModel8" --epochs 10 --batch_size 64 --val_ratio 0.2 --name exp18 >> log18.txt
+ensemble1        folder Tue Mar  1 161521 2022
+ensemble2        folder Wed Mar  2 032708 2022
+ensemble3        folder Wed Mar  2 124201 2022
+ensemble_final1  folder Wed Mar  2 170241 2022
+
+
+initialize code
+rm checkpoints -f -r && rm history -f -r && rm results -f -r
