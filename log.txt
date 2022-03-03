@@ -83,20 +83,23 @@ batch_size 64
 
 #8 | 0.6043 | 71.8254%
 2022-03-01 19:10 [same as above]
+EfficientNet_b4 do not freeze
 epochs 2/5
 
 #9 | 0.5818 | 71.0000%
 2022-03-01 21:11 [same as above]
+EfficientNet_b4 do not freeze
 epochs 3/5
 
 #10 | 0.6157 | 68.6032%
 2022-03-02 00:05 [same as above]
+EfficientNet_b4 do not freeze
 epochs 4/5
 
 #11 | 0.6277 | 75.1905%
 2022-03-02 02:22
 CrossEntropyLoss
-EfficientNet_b4 do not freeze
+EfficientNet_b4 again do not freeze
 fc 1개
 lr=[0.0008, 0.0005, 0.0003, 0.0002]
 AdamW weight_decay 0.001
@@ -116,6 +119,7 @@ batch_size 24
 #13 | 0.7204 | 78.9683%
 2022-03-02 21:54
 Hard voting ensemble [#7, #5, #11]
+EfficientNet_b4 1/5 & ResNet-18 18/30 & EfficientNet_b4 again 1/4
 Conflict resolving rules(229/12600)
     if no agreement on label:
         proceed hard voting per each subclass(210/12600)
@@ -132,17 +136,40 @@ AdamW weight_decay 0.001
 epochs 1/5
 batch_size 40
 
-#15 | 0.7338 | 77.1587% [TEAM BEST]
+#15 | 0.7338 | 77.1587%
 2022-03-02 23:59 [same as above]
+EfficientNet_b3 do not freeze
 epochs 2/5
 
 #16 | 0.7272 | 78.8889%
 2022-03-03 00:41 [same as above]
+EfficientNet_b3 do not freeze
 epochs 5/5
 
 #17 | 0.7094 | 76.1270%
 2022-03-03 17:05 [same as #12]
+EfficientNet_b5 do not freeze
 epochs 4/5
 
 #18 [duplicate of #15]
 2022-03-03 17:26
+
+#19 | 0.7525 | 79.5714% [TEAM BEST]
+2022-03-03 18:47
+Hard voting ensemble [#15, #7, #16]
+EfficientNet_b3 2/5 & EfficientNet_b4 1/5 & EfficientNet_b3 5/5
+Conflict resolving rules(121/12600)
+    if no agreement on label:
+        proceed hard voting per each subclass(119/12600)
+        if no agreement on age subclass label again:
+            follow age subclass label of the best model(2/12600)
+
+#20 | 0.7170 | 77.7778%
+2022-03-03 18:56 [same as #11]
+EfficientNet_b4 again do not freeze
+epochs 2/4
+
+#21 | 0.6741 | 75.9683%
+2022-03-03 18:57 [same as #14]
+EfficientNet_b3 do not freeze
+epochs 3/5
