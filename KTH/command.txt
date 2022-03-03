@@ -5,4 +5,5 @@ ensemble_final1  folder Wed Mar  2 170241 2022
 
 
 initialize code
-rm checkpoints -f -r && rm history -f -r && rm results -f -r
+rm checkpoints -f -r && rm history -f -r && rm results -f -r && python main.py
+cp epoch1.pt ../../epoch1.pt && cp epoch2.pt ../../epoch2.pt && cp epoch3.pt ../../epoch3.pt && cp epoch4.pt ../../epoch4.pt && cp epoch5.pt ../../epoch5.pt

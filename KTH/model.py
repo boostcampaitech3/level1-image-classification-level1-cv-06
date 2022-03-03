@@ -180,6 +180,7 @@ class ResNet_Ensemble2(nn.Module):
         y = self.Sigmoid(y)
         y = torch.mul(y,0.5)
         return y1,y2,y3,y4,y5,y
+    
 class ResNet_Ensemble_debugged(nn.Module):
     def __init__(self):
         super(ResNet_Ensemble_debugged, self).__init__()
@@ -198,23 +199,23 @@ class ResNet_Ensemble_debugged(nn.Module):
     def forward(self,x):
         # Parallel Module part
         y1 = self.model1(x)
-        y1 = self.refiner(y1)
+        #y1 = self.refiner(y1)
         y1 = self.Tanh(y1)
         
         y2 = self.model2(x)
-        y2 = self.refiner(y2)
+        #y2 = self.refiner(y2)
         y2 = self.Tanh(y2)
         
         y3 = self.model3(x)
-        y3 = self.refiner(y3)
+        #y3 = self.refiner(y3)
         y3 = self.Tanh(y3)
         
         y4 = self.model4(x)
-        y4 = self.refiner(y4)
+        #y4 = self.refiner(y4)
         y4 = self.Tanh(y4)
         
         y5 = self.model5(x)
-        y5 = self.refiner(y5)
+        #y5 = self.refiner(y5)
         y5 = self.Tanh(y5)
         
         y6 = torch.cat((y1,y2,y3,y4,y5),1)
@@ -222,16 +223,16 @@ class ResNet_Ensemble_debugged(nn.Module):
         y6 = self.Sigmoid(y6)
         
         # Weighted Summation part
-        y = torch.mul(y6,0.1)
-        y1 = torch.mul(y1,0.3*1)
-        y2 = torch.mul(y2,0.3*0.8)
-        y3 = torch.mul(y3,0.3*0.6)
-        y4 = torch.mul(y4,0.3*0.4)
-        y5 = torch.mul(y5,0.3*0.2)
+        #y = torch.mul(y6,0.1)
+        #y1 = torch.mul(y1,0.3*1)
+        #y2 = torch.mul(y2,0.3*0.8)
+        #y3 = torch.mul(y3,0.3*0.6)
+        #y4 = torch.mul(y4,0.3*0.4)
+        #y5 = torch.mul(y5,0.3*0.2)
         
         # Final output part
-        y += y1+y2+y3+y4+y5
-        
+        #y += y1+y2+y3+y4+y5
+        y = y1+y2+y3+y4+y5+y6
         return y1,y2,y3,y4,y5,y6,y
     
     

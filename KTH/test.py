@@ -133,7 +133,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     #if best_epoch != epoch + 1:
     #    checkpoint = torch.load(os.path.join(location['checkpoints_path'], f'epoch{best_epoch}.pt'), map_location=device)
     #    model.load_state_dict(checkpoint['model'])
-    checkpoint = torch.load('./epoch14.pt', map_location=device)
+    checkpoint = torch.load('./epoch5.pt', map_location=device)
     model.eval()
     with torch.no_grad():
         for batch_index, images in enumerate(test_loader):
@@ -161,6 +161,6 @@ if __name__ == '__main__':
     done_epochs = 0
 
     # How much epochs to train now
-    train_epochs = 15
+    train_epochs = 10
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)

@@ -19,7 +19,7 @@ import multiprocessing
 
 import pandas as pd
 
-from loss import F1Loss
+from loss import F1Loss, FocalLoss, LabelSmoothingLoss
 from model import MultiHeadClassifier, ResNet_Ensemble, ResNet_Ensemble2, ResNet_Ensemble_debugged
 from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
 
@@ -121,13 +121,16 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     ######## Model & Hyperparameters ########
     #model = MultiHeadClassifier().to(device)
     model = ResNet_Ensemble_debugged().to(device)
-    learning_rate = 0.001
+    learning_rate = 0.0002
+    
+    #ResNet Ensemble Final1
+    #criterion = F1Loss()
+    #criterion1, criterion2, criterion3, criterion4, criterion5 = nn.CrossEntropyLoss(), nn.CrossEntropyLoss(), nn.CrossEntropyLoss(), nn.CrossEntropyLoss(), nn.CrossEntropyLoss()
+    
+    #ResNet Ensemble Final2
     criterion = F1Loss()
-    criterion1 = nn.CrossEntropyLoss()
-    criterion2 = nn.CrossEntropyLoss()
-    criterion3 = nn.CrossEntropyLoss()
-    criterion4 = nn.CrossEntropyLoss()
-    criterion5 = nn.CrossEntropyLoss()
+    criterion1, criterion2, criterion3, criterion4, criterion5 = FocalLoss(), FocalLoss(), FocalLoss(), FocalLoss(), FocalLoss()
+    
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
 
     plot_bound = 0
@@ -261,9 +264,9 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
     # Load best model selected by validation loss
     print(f"Prediction | Loading epoch {best_epoch} model (epoch with best validation loss)")
-    if best_epoch != epoch + 1:
-        checkpoint = torch.load(os.path.join(location['checkpoints_path'], f'epoch{best_epoch}.pt'), map_location=device)
-        model.load_state_dict(checkpoint['model'])
+    #if best_epoch != epoch + 1:
+    checkpoint = torch.load(os.path.join('./checkpoints', f'epoch{done_epochs}.pt'), map_location=device)
+    model.load_state_dict(checkpoint['model'])
 
     model.eval()
     with torch.no_grad():
@@ -313,9 +316,9 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
 
 if __name__ == '__main__':
     # Last checkpoint's training position
-    done_epochs = 0
+    done_epochs = 2
 
     # How much epochs to train now
-    train_epochs = 15
+    train_epochs = 0
 
     train_and_eval(done_epochs, train_epochs, clear_log=False)
