@@ -37,9 +37,12 @@
     * EfficientNet_b3(trained 5 epochs / result of 2nd epoch)*
     * EfficientNet_b4(trained 4 epochs / result of 1st epoch)
     * EfficientNet_b3(trained 5 epochs / result of 5th epoch)*
-  * Conflict resolving rule: 예측 3회의 예측 class가 모두 다른 경우(121/12600건)
-    * 예측 3회의 mask, gender, age subtask별 예측 class 각각의 최빈값을 구하여 이들을 조합한 class를 따름(119/12600건)
-    * 예측 3회에서 age subtask 예측 class까지 다른 경우 age subtask 예측 class는 첫 번째 예측의 것을 따름(2/12600건)
+  * Conflict resolving rule: 예측 3회의 예측 class가 모두 다른 경우
+    * 121/12600건
+    * 예측 3회의 mask, gender, age subtask별 예측 class 각각의 최빈값을 구하여 이들을 조합한 class를 따름
+      * 119/12600건
+    * 예측 3회에서 age subtask 예측 class까지 다른 경우 age subtask 예측 class는 첫 번째 예측의 것을 따름
+      * 2/12600건
       * Class [3, 2, 1] -> Class 0
       * Class [5, 1, 0] -> Class 2
   * Hyperparameters
