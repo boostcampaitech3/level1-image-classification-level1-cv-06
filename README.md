@@ -54,9 +54,12 @@
     * Batch size
       * For EfficientNet_b3: 40
       * For EfficientNet_b4: 32
-    * Data augmentation
-      * transforms.ToTensor()
-      * transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+  * Data augmentation
+    * transforms.ToTensor()
+    * transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+  * Train & validation dataset split rule
+    * 정답 class별로 8:2 split을 진행하여 양쪽의 class 분포를 맞춤
+    * 같은 사람의 사진은 class와 무관하게 한쪽으로만 들어가도록 split 진행
 
 \* Single train procedure
 
