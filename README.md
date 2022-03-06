@@ -19,26 +19,26 @@
 
 주어진 얼굴 사진을 다음의 세 가지 기준에 따라 18개의 class로 분류
 
-  * 마스크 착용 여부
-    * 제대로 착용
-    * 잘못 착용
+  * **마스크 착용 여부**
+    * 제대로 착용함
+    * 잘못 착용함
     * 착용하지 않음
-  * 겉보기 성별
+  * **겉보기 성별**
     * 남성
     * 여성
-  * 나이대
+  * **나이대**
     * 29세 이하
     * 30~59세
     * 60세 이상
 
 #### Image Dataset Specifications
 
-  * 사진 속의 인물: 4500명
-  * 인물 당 사진: 7장
+  * **사진 속의 인물: 4500명**
+  * **인물 당 사진: 7장**
     * 마스크를 제대로 착용한 사진: 5장
     * 마스크를 잘못 착용한 사진: 1장
     * 마스크를 착용하지 않은 사진: 1장
-  * Dataset ratio
+  * **Dataset ratio**
     * Train & validation dataset: 60%
     * Test dataset for public leaderboard: 20%
     * Test dataset for private leaderboard: 20%
@@ -56,19 +56,16 @@
 
 ### Technical Specifications
 
-  * Model: Hard voting ensemble of 3 predictions
+  * **Model: Hard voting ensemble of 3 predictions**
     * EfficientNet_b3(trained 5 epochs / result of 2nd epoch)*
     * EfficientNet_b4(trained 4 epochs / result of 1st epoch)
     * EfficientNet_b3(trained 5 epochs / result of 5th epoch)*
-  * Conflict resolving rule: 예측 3회의 예측 class가 모두 다른 경우
-    * 121/12600건
-    * 예측 3회의 mask, gender, age subtask별 예측 class 각각의 최빈값을 구하여 이들을 조합한 class를 따름
-      * 119/12600건
-    * 예측 3회에서 age subtask 예측 class까지 다른 경우 age subtask 예측 class는 첫 번째 예측의 것을 따름
-      * 2/12600건
+  * **예측 3회의 예측 class가 모두 다른 경우: 121/12600건**
+    * 예측 3회의 mask, gender, age subtask별 예측 class 각각의 최빈값을 구하여 이들을 조합한 class를 따름: 119/12600건
+    * 예측 3회에서 age subtask 예측 class까지 다른 경우 age subtask 예측 class는 첫 번째 예측의 것을 따름: 2/12600건
       * Class [3, 2, 1] -> Class 0
       * Class [5, 1, 0] -> Class 2
-  * Hyperparameters
+  * **Hyperparameters**
     * Optimizer: torch.optim.AdamW(weight_decay=0.001)
     * Criterion: nn.CrossEntropyLoss()
     * Learning rate
@@ -77,10 +74,10 @@
     * Batch size
       * For EfficientNet_b3: 40
       * For EfficientNet_b4: 32
-  * Data augmentation
+  * **Data augmentation**
     * transforms.ToTensor()
     * transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-  * Train & validation dataset split rule
+  * **Train & validation dataset split rule**
     * class ProfileClassEqualSplitTrainMaskDataset
     * 정답 class별로 8:2 split을 진행하여 양쪽의 class 분포를 맞춤
     * 같은 사람의 사진은 class와 무관하게 한쪽으로만 들어가도록 split 진행
