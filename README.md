@@ -19,24 +19,18 @@
 
   * **주어진 얼굴 사진을 다음의 세 가지 기준에 따라 18개의 class로 분류**
     * **Subtask 1: 마스크 착용 여부**
-      * 제대로 착용함
-      * 잘못 착용함
-      * 착용하지 않음
+      * 제대로 착용함 / 잘못 착용함 / 착용하지 않음
     * **Subtask 2: 겉보기 성별**
-      * 남성
-      * 여성
+      * 남성 / 여성
     * **Subtask 3: 나이대**
-      * 29세 이하
-      * 30~59세
-      * 60세 이상
+      * 29세 이하 / 30~59세 / 60세 이상
 
 #### Image Dataset Specifications
 
   * **사진 속의 인물: 4500명**
   * **인물 당 사진: 7장**
     * 마스크를 제대로 착용한 사진: 5장
-    * 마스크를 잘못 착용한 사진: 1장
-    * 마스크를 착용하지 않은 사진: 1장
+    * 마스크를 잘못 착용한 사진: 1장 / 마스크를 착용하지 않은 사진: 1장
   * **Dataset ratio**
     * Train & validation dataset: 60%
     * Test dataset for public leaderboard: 20%
@@ -78,12 +72,8 @@
   * **Hyperparameters**
     * Optimizer: torch.optim.AdamW(weight_decay=0.001)
     * Criterion: nn.CrossEntropyLoss()
-    * Learning rate
-      * For EfficientNet_b3: [0.0003, 0.0003, 0.0002, 0.0002, 0.0001]
-      * For EfficientNet_b4: [0.0008, 0.0005, 0.0003, 0.0002]
-    * Batch size
-      * For EfficientNet_b3: 40
-      * For EfficientNet_b4: 32
+    * Learning rate: [3, 3, 2, 2, 1]e-4 for EfficientNet_b3 / [8, 5, 3, 2]e-4 for EfficientNet_b4
+    * Batch size: 40 for EfficientNet_b3 / 32 for EfficientNet_b4
   * **Data augmentation**
     * transforms.ToTensor()
     * transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
