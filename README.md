@@ -53,9 +53,16 @@
 
 ### Approaches
 
-> To be written <br>
-> 프로젝트 데이터 정제 과정 작성 예정 <br>
-> 실험해 본 내역 작성 예정
+  * **Dealing with data imbalance**
+    * 실험 대상 모델을 고를 때 후보 모델들의 data imbalance robustness를 고려함
+    * GAN 등의 색다른 모델에 대한 실험도 진행해 봄
+    * F1 loss 사용 실험 진행
+  * **Dealing with label noise**
+    * ResNet-18을 10번 새로 학습시켜 얻은 10개의 validation dataset class 예측 중에서 2회 이상 틀린 경우를 전수조사하여 train & validation dataset의 image 209장의 label 교정
+  * **Dealing with subtask cross dependency**
+    * Generalization 성능이 좋은 AdamW optimizer 사용
+    * Image mixup 및 crop 여부에 따른 성능 비교 실험 진행
+    * Soft voting 내지는 hard voting ensemble 적극 활용
 
 ### Technical Specifications
 
