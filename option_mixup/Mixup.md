@@ -1,4 +1,5 @@
-요약 : Mixup은 한정적인 학습 데이터를 통해 cost를 최소화할 수 있는 data augmentation 방법론이다. 다른 샘플 데이터 i번째와 j번째 $(x_i, x_j)$ 를 $\alpha$ 비율만큼 섞어서 새로운 데이터 $\tilde{x}$ 를 생성한다. 물론 이때 label도 $\alpha$ 만큼 섞어서 사용한다. 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+## 요약 : Mixup은 한정적인 학습 데이터를 통해 cost를 최소화할 수 있는 data augmentation 방법론이다. 다른 샘플 데이터 i번째와 j번째 $(x_i, x_j)$ 를 $\alpha$ 비율만큼 섞어서 새로운 데이터 $\tilde{x}$ 를 생성한다. 물론 이때 label도 $\alpha$ 만큼 섞어서 사용한다. 
 
 ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/27f69f79-f315-48be-8a64-67e7205aa272/Untitled.png)
 
