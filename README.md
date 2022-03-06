@@ -4,11 +4,11 @@
 
 ### Results
 
-  * Public test dataset
+  * **Test dataset for public dataset**
     * F1 score: 0.7525
     * Test accuracy: 79.5714%
     * Provisional standing: 20th / 48 teams
-  * Private test dataset
+  * **Test dataset for private dataset**
     * F1 score: 0.7348
     * Test accuracy: 78.9048%
     * Final standing: 26th / 48 teams
@@ -17,8 +17,31 @@
 
 #### Image Classification Task Specifications
 
-> To be written <br>
-> 대회 개요 작성 
+주어진 얼굴 사진을 다음의 세 가지 기준에 따라 18개의 class로 분류
+
+  * 마스크 착용 여부
+    * 제대로 착용
+    * 잘못 착용
+    * 착용하지 않음
+  * 겉보기 성별
+    * 남성
+    * 여성
+  * 나이대
+    * 29세 이하
+    * 30~59세
+    * 60세 이상
+
+#### Image Dataset Specifications
+
+  * 사진 속의 인물: 4500명
+  * 인물 당 사진: 7장
+    * 마스크를 제대로 착용한 사진: 5장
+    * 마스크를 잘못 착용한 사진: 1장
+    * 마스크를 착용하지 않은 사진: 1장
+  * Dataset ratio
+    * Train & validation dataset: 60%
+    * Test dataset for public leaderboard: 20%
+    * Test dataset for private leaderboard: 20%
 
 #### Main Difficulties
 
@@ -63,7 +86,7 @@
     * 같은 사람의 사진은 class와 무관하게 한쪽으로만 들어가도록 split 진행
     * Data leakage 예방
 
-\* Single train procedure
+\*: Single train procedure
 
 ### Lessons
 
