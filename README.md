@@ -17,19 +17,18 @@
 
 #### Image Classification Task Specifications
 
-주어진 얼굴 사진을 다음의 세 가지 기준에 따라 18개의 class로 분류
-
-  * **마스크 착용 여부**
-    * 제대로 착용함
-    * 잘못 착용함
-    * 착용하지 않음
-  * **겉보기 성별**
-    * 남성
-    * 여성
-  * **나이대**
-    * 29세 이하
-    * 30~59세
-    * 60세 이상
+  * **주어진 얼굴 사진을 다음의 세 가지 기준에 따라 18개의 class로 분류**
+    * **마스크 착용 여부**
+      * 제대로 착용함
+      * 잘못 착용함
+      * 착용하지 않음
+    * **겉보기 성별**
+      * 남성
+      * 여성
+    * **나이대**
+      * 29세 이하
+      * 30~59세
+      * 60세 이상
 
 #### Image Dataset Specifications
 
@@ -45,8 +44,12 @@
 
 #### Main Difficulties
 
-> To be written <br>
-> 어려웠던 지점들 작성 예정
+  * **Data imbalance**
+    * 겉보기 성별이 남성인 사진과 나이대가 60세 이상인 사진의 비율이 유의미하게 낮았음
+  * **Label noise**
+    * Train & validation dataset에 잘못 분류된 사진이 209/18900장(1.11%) 있었음
+  * **Subtask cross dependency**
+    * Subtask 3개 간의 상호 dependency로 인해 class 18개의 독립분포 가정이 위배됨
 
 ### Approaches
 
