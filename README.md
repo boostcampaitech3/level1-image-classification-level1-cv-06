@@ -3,7 +3,7 @@ level1-image-classification-level1-cv-06 created by GitHub Classroom
 
 ### Mixup Review
 
-요약 : Mixup은 한정적인 학습 데이터를 통해 cost를 최소화할 수 있는 data augmentation 방법론이다. 다른 샘플 데이터 i번째와 j번째 \[ http://latex.codecogs.com/svg.latex?$(x_i, x_j)$ \] 를 $$\alpha$$ 비율만큼 섞어서 새로운 데이터 $$\tilde{x}$$ 를 생성한다. 물론 이때 label도 $$\alpha$$ 만큼 섞어서 사용한다. 
+요약 : Mixup은 한정적인 학습 데이터를 통해 cost를 최소화할 수 있는 data augmentation 방법론이다. 다른 샘플 데이터 i번째와 j번째 $(x_i, x_j)$를 $$\alpha$$ 비율만큼 섞어서 새로운 데이터 $$\tilde{x}$$ 를 생성한다. 물론 이때 label도 $$\alpha$$ 만큼 섞어서 사용한다. 
 
 ![mixup1](https://user-images.githubusercontent.com/44994262/156910562-d8f7d4f6-ef2f-4237-a81f-5182e8709817.png)
 
