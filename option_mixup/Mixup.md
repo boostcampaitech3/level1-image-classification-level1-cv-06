@@ -1,11 +1,10 @@
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-## 요약 : Mixup은 한정적인 학습 데이터를 통해 cost를 최소화할 수 있는 data augmentation 방법론이다. 다른 샘플 데이터 i번째와 j번째 $(x_i, x_j)$ 를 $\alpha$ 비율만큼 섞어서 새로운 데이터 $\tilde{x}$ 를 생성한다. 물론 이때 label도 $\alpha$ 만큼 섞어서 사용한다. 
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/27f69f79-f315-48be-8a64-67e7205aa272/Untitled.png)
+### 요약 : Mixup은 한정적인 학습 데이터를 통해 cost를 최소화할 수 있는 data augmentation 방법론이다. 다른 샘플 데이터 i번째와 j번째 $(x_i, x_j)$ 를 $\alpha$ 비율만큼 섞어서 새로운 데이터 $\tilde{x}$ 를 생성한다. 물론 이때 label도 $\alpha$ 만큼 섞어서 사용한다. 
+
+![Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/27f69f79-f315-48be-8a64-67e7205aa272/Untitled.png)
 
 $x_i$와 $x_j$ 선형결합을 통해 새로운 데이터 $\tilde{x}$를 얻을 수 있다. 
 
-![예시 : 고양이와 강아지를 0.5씩 섞었다.](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e8a3e71c-c56d-479f-b11f-5f1844c917b4/Untitled.png)
 
 예시 : 고양이와 강아지를 0.5씩 섞었다.
 
