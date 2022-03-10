@@ -163,14 +163,14 @@ class ProfileClassEqualSplitTrainMaskDataset(Dataset):
     def set_transform(self, transform) -> None:
         self.transform = transform
 
-    def __getitem__(self, index: int) -> Tuple[Image.Image, int]:
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
         image = self.read_image(index)
         label = self.get_label(index)
 
         if self.transform:
             return self.transform(image), label
         else:
-            return image, label
+            return transforms.ToTensor(image), label
 
     def __len__(self) -> int:
         return len(self.image_paths)
@@ -219,13 +219,13 @@ class EvalMaskDataset(Dataset):
     def set_transform(self, transform) -> None:
         self.transform = transform
 
-    def __getitem__(self, index: int) -> Image.Image:
+    def __getitem__(self, index: int) -> torch.Tensor:
         image = self.read_image(index)
 
         if self.transform:
             return self.transform(image)
         else:
-            return image
+            return transforms.ToTensor(image)
 
     def __len__(self) -> int:
         return len(self.image_paths)
@@ -245,13 +245,13 @@ class TestDataset(Dataset):
             transforms.Normalize(mean=mean, std=std),
         ])
 
-    def __getitem__(self, index: int) -> Image.Image:
+    def __getitem__(self, index: int) -> torch.Tensor:
         image = self.read_image(index)
 
         if self.transform:
             return self.transform(image)
         else:
-            return image
+            return transforms.ToTensor(image)
 
     def __len__(self) -> int:
         return len(self.img_paths)
