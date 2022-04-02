@@ -27,9 +27,11 @@ from dataset import ProfileClassEqualSplitTrainMaskDataset, EvalMaskDataset
 def get_time() -> str:
     return time.strftime('%c', time.localtime(time.time()))
 
+
 def clear_pycache(root: str = './') -> None:
     if os.path.exists(os.path.join(root, '__pycache__')):
         shutil.rmtree(os.path.join(root, '__pycache__'))
+
 
 def clear_log_folders(root: str = './') -> None:
     if os.path.exists(os.path.join(root, 'checkpoints')):
@@ -38,6 +40,7 @@ def clear_log_folders(root: str = './') -> None:
         shutil.rmtree(os.path.join(root, 'history'))
     if os.path.exists(os.path.join(root, 'results')):
         shutil.rmtree(os.path.join(root, 'results'))
+
 
 def seed_everything(seed):
     torch.manual_seed(seed)
@@ -48,10 +51,12 @@ def seed_everything(seed):
     np.random.seed(seed)
     random.seed(seed)
 
+
 # For updating learning rate
 def update_learning_rate(optimizer, lr) -> None:
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+
 
 def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False) -> None:
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -337,6 +342,7 @@ def train_and_eval(done_epochs: int, train_epochs: int, clear_log: bool = False)
     plt.savefig(os.path.join(location['results_path'], 'result.png'), dpi=1000)
 
     print(f"Code execution done @ {get_time()}", flush=True)
+
 
 if __name__ == '__main__':
     # Last checkpoint's training position
