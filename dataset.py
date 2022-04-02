@@ -3,6 +3,7 @@
 # Educational Mask Image Dataset
 #
 
+
 import os
 import random
 from enum import Enum
@@ -232,6 +233,7 @@ class EvalMaskDataset(Dataset):
 
     def read_image(self, index: int) -> Image.Image:
         return Image.open(self.image_paths[index])
+
 
 class TestDataset(Dataset):
     '''
