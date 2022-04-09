@@ -4,10 +4,10 @@
 
 ### Results
 
-  * **Test dataset for public dataset**
+  * **Test dataset for public leaderboard**
     * F1 score: 0.7525 / test accuracy: 79.5714%
     * Provisional standing: 20th / 48 teams
-  * **Test dataset for private dataset**
+  * **Test dataset for private leaderboard**
     * F1 score: 0.7348 / test accuracy: 78.9048%
     * Final standing: 26th / 48 teams
 
